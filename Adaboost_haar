@@ -1,0 +1,103 @@
+% % for k = 1:numfiles
+%    field1=image;
+%   value1=sprintf('p%d.png', k);
+%   field2=bbox;
+%   value2=[1 1 30 30]
+%  pos = struct(field1,value1,field2,value2);
+% end
+%
+% for i=1:200
+% fileName = strcat('F:/HAAR classifier/positive_samples/(',num2str(i),').jpg');
+%     positiveInstances(i).imageFilename = fileName;
+%     positiveInstances(i).objectBoundingBoxes = [40,5,80,110];
+% end
+% %for k = 1:numfiles
+%    field1=image1;
+%   value1=sprintf('g%d.jpg', k);
+%
+%  neg = struct(field1,value1,field2,value2);
+%  %end
+% imDir = fullfile(matlabroot,'toolbox','vision','visiondata','image');
+% addpath(imDir);
+% negativeFolder  = fullfile('F:/HAAR classifier/negative_samples');
+% trainCascadeObjectDetector('detector.xml',positiveInstances,negativeFolder ,'FalseAlarmRate',0.3,'NumCascadeStages',9);
+% detector = vision.CascadeObjectDetector('detector.xml');
+% test_image = imread('F:/HAAR classifier/(27).jpg');
+% bbox = step(detector, test_image);
+% detectedImage = insertObjectAnnotation(test_image,'rectangle',bbox,'texel');
+% figure; imshow(detectedImage)
+%
+
+
+
+
+%imDir = fullfile(matlabroot,'toolbox','vision','visiondata','stopSignImages');
+%addpath(imDir);
+%negativeFolder = fullfile(matlabroot,'toolbox','vision','visiondata','stopSignImages');
+negativeFolder  = fullfile('F:\expt_12\neg_cropped');
+positiveInstances = struct;
+%negativeImages = imageDatastore(negativeFolder);
+filebase = 'F:\expt_12\';
+len = length(dir(strcat(filebase,'flat_hand_1')))-2;
+w=100;
+h=100;
+%for i=1:len
+%    img = imread(strcat(filebase,'flat_hand_1\(',num2str(i),').jpg'));
+%    img = imresize(img,[w , h]);
+%    filename = strcat(filebase,'flat_hand\(',num2str(i),').jpg');
+%    imwrite(img,filename);
+%end
+len = length(dir(strcat(filebase,'flat_hand')))-2;
+for i=1:len
+    fileName = strcat('F:\expt_12\flat_hand\(',num2str(i),').jpg');
+    positiveInstances(i).imageFilename = fileName;
+    positiveInstances(i).objectBoundingBoxes = [1,1,100,100];   %120,160
+end
+    trainCascadeObjectDetector('Detector.xml',positiveInstances,negativeFolder,'FalseAlarmRate',0.0315,'NumCascadeStages',20,'FeatureType','HOG','NegativeSamplesFactor',1);
+    
+    
+    detector = vision.CascadeObjectDetector('Detector.xml');
+    
+    savebase = 'F:\expt_12\Submit2';
+    count=1;
+    for i=count:count+40
+        disp(i);
+        original = imread(strcat('F:\expt_12\flat_test\(',num2str(i),').jpg'));
+        %img = imresize(original,[720 1280]);
+        img=original;
+        bbox = step(detector,img);
+        detectedImg = insertObjectAnnotation(img,'rectangle',bbox,'hand');
+        figure;
+        imshow(detectedImg);
+        fileloc= 'F:\expt_12\Final\';
+        fileloc = strcat(fileloc,num2str(i),'.jpg');
+        imwrite(detectedImg,fileloc);
+        k = waitforbuttonpress;
+        if k==1
+            close all;
+            continue;
+        end
+        %[c,r] = ginput(6);
+        close all;
+        % Original Patches
+        %patch = imcrop(img,[c(1) r(1) abs(c(2)-c(1)+10) abs(r(2)-r(1)+10)]);
+        %outfile = strcat(savebase,'\patches\',num2str(i),'.jpg');
+        %imwrite(patch,outfile);
+        % Non Patch Area 1
+        %patch = imcrop(img,[c(3) r(3) abs(c(4)-c(3)) abs(r(4)-r(3))]);
+        %outfile = strcat(savebase,'\non_patches1\',num2str(i),'.jpg');
+        %imwrite(patch,outfile);
+        % Non Patch Area 2
+        %patch = imcrop(img,[c(5) r(5) abs(c(6)-c(5)) abs(r(6)-r(5))]);
+        %outfile = strcat(savebase,'\non_patches2\',num2str(i),'.jpg');
+        %imwrite(patch,outfile);
+        %Original Image
+        %outfile = strcat(savebase,'\Original\',num2str(i),'.jpg');
+        %imwrite(original,outfile);
+        % Original Image with Labels
+        %outfile = strcat(savebase,'\Boxes\',num2str(i),'.jpg');
+        %imwrite(detectedImg,outfile);
+        %resized images
+        %outfile = strcat(savebase,'\resized\',num2str(i),'.jpg');
+        %imwrite(img,outfile);
+    end
